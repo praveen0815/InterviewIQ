@@ -320,5 +320,3 @@ AI integration tests should distinguish mocked LLM responses from real Gemini AP
 
 **Praveenkumar R.**
 ---
-
-**InterviewIQ – Prepare Smarter. Practice Better. Interview with Confidence.**
