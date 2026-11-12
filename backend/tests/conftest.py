@@ -35,6 +35,14 @@ def db_session(migrated_database) -> Generator[Session, None, None]:
         session.rollback()
         session.close()
         with migrated_database.begin() as connection:
+            connection.exec_driver_sql("DELETE FROM interview_reports")
+            connection.exec_driver_sql("DELETE FROM answer_evaluations")
+            connection.exec_driver_sql("DELETE FROM candidate_answers")
+            connection.exec_driver_sql("DELETE FROM interview_questions")
+            connection.exec_driver_sql("DELETE FROM interview_sessions")
+            connection.exec_driver_sql("DELETE FROM job_matches")
+            connection.exec_driver_sql("DELETE FROM resume_analyses")
+            connection.exec_driver_sql("DELETE FROM job_descriptions")
             connection.exec_driver_sql("DELETE FROM resumes")
 
 

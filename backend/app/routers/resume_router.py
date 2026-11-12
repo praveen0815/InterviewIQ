@@ -14,7 +14,7 @@ from app.services.llm_service import (
 )
 from app.services.resume_analysis_service import analyze_resume
 from app.services.resume_service import get_resume, save_resume
-from app.utils.file_validator import validate_resume_file
+from app.utils.file_validator import validate_resume_content, validate_resume_file
 
 router = APIRouter(prefix=f"{settings.api_v1_prefix}/resumes", tags=["resumes"])
 
@@ -30,6 +30,7 @@ async def upload_resume(
         raise HTTPException(status_code=400, detail="Uploaded file is empty.")
     if len(content) > settings.max_upload_size_bytes:
         raise HTTPException(status_code=413, detail="Resume file is too large.")
+    validate_resume_content(content, extension)
 
     try:
         return save_resume(db, file, content, extension)

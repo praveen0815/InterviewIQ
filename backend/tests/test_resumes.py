@@ -64,6 +64,15 @@ def test_invalid_file_type_is_rejected(client) -> None:
     assert response.status_code == 415
 
 
+def test_file_with_pdf_extension_but_invalid_signature_is_rejected(client) -> None:
+    response = client.post(
+        "/api/v1/resumes/upload",
+        files={"file": ("resume.pdf", b"not a PDF", "application/pdf")},
+    )
+
+    assert response.status_code == 415
+
+
 def test_empty_file_is_rejected(client) -> None:
     response = client.post(
         "/api/v1/resumes/upload",

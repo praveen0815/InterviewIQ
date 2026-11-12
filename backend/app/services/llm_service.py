@@ -63,6 +63,21 @@ class GeminiLLMService:
         except Exception as error:
             raise LLMServiceError("Gemini request failed.") from error
 
+    def generate_text(self, prompt: str) -> str:
+        try:
+            response = self._get_client().models.generate_content(
+                model=self._settings.gemini_model,
+                contents=prompt,
+            )
+            text = getattr(response, "text", None)
+            if not text:
+                raise LLMServiceError("Gemini returned an empty response.")
+            return text.strip()
+        except (LLMConfigurationError, LLMServiceError):
+            raise
+        except Exception as error:
+            raise LLMServiceError("Gemini request failed.") from error
+
 
 def get_llm_service() -> GeminiLLMService:
     return GeminiLLMService()

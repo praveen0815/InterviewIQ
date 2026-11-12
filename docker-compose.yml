@@ -18,5 +18,49 @@ services:
       retries: 5
       start_period: 10s
 
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-interviewiq}
+      CORS_ORIGINS: '["http://localhost:5173"]'
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash}
+      UPLOAD_DIR: /app/uploads
+      RAG_CHROMA_DIR: /app/chroma_data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - interviewiq-uploads:/app/uploads
+      - interviewiq-chroma-data:/app/chroma_data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "5173:80"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
 volumes:
   interviewiq-postgres-data:
+  interviewiq-chroma-data:
+  interviewiq-uploads:

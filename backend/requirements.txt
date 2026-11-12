@@ -11,3 +11,6 @@ PyMuPDF==1.25.1
 python-docx==1.1.2
 python-multipart==0.0.20
 google-genai==1.16.1
+chromadb==1.0.20
+sentence-transformers==5.1.1
+langgraph==0.6.7

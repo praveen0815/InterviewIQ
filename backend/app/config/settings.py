@@ -14,6 +14,14 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-3.8-flash"
     gemini_timeout_seconds: float = 60.0
+    ai_rate_limit_per_minute: int = 30
+    database_pool_size: int = 5
+    database_max_overflow: int = 10
+    rag_chroma_dir: str = "chroma_data"
+    rag_embedding_model: str = "all-MiniLM-L6-v2"
+    rag_chunk_size: int = 800
+    rag_chunk_overlap: int = 120
+    rag_top_k: int = 5
 
     model_config = SettingsConfigDict(
         env_file=".env",

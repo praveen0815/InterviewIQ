@@ -1,322 +1,220 @@
-# InterviewIQ – AI-Powered Interview Preparation Platform
+# InterviewIQ
 
-An intelligent interview preparation platform that helps candidates prepare for job interviews through resume analysis, job description matching, personalized interview insights, and AI-powered mock interviews.
+InterviewIQ is an AI-assisted interview preparation workspace. It accepts a resume, extracts its text, analyzes resume and job data, compares the two, retrieves grounded context, and runs a persistent mock interview.
 
-InterviewIQ aims to combine **Generative AI, Retrieval-Augmented Generation (RAG), and AI Agents** to deliver a personalized interview preparation experience.
+## Features
 
----
+- PDF and DOCX resume upload with size, MIME, and file-signature validation.
+- Resume text extraction and persisted metadata.
+- Gemini-backed resume analysis, job analysis, and resume-to-job matching.
+- Persistent ChromaDB RAG indexing for resumes and job descriptions.
+- LangGraph-based interview planning, question generation, answer evaluation, and completion summaries.
+- Persisted interview reports with score aggregation, skill performance, question feedback, recommendations, dashboard summaries, and PDF export.
+- PostgreSQL persistence through SQLAlchemy and Alembic.
+- React/Vite dashboard with API error states and interview controls.
+- Docker Compose deployment with PostgreSQL, backend, frontend, uploads, and ChromaDB volumes.
 
-## 🚀 Project Overview
+Authentication and authorization are not implemented. The current deployment is suitable for a trusted development or single-user environment, not an internet-facing multi-user service.
 
-Preparing for technical interviews can be challenging. Candidates often struggle to identify skill gaps, understand job requirements, prepare relevant questions, and evaluate their interview performance.
-
-InterviewIQ addresses these challenges by analyzing a candidate's resume and target job description to provide personalized preparation support.
-
-The platform is designed to evolve from an AI-powered resume analysis tool into a complete intelligent interview preparation system.
-
-## ✨ Key Features
-
-### Implemented
-
-- **Resume Upload:** Upload PDF and DOCX resumes.
-- **Resume Text Extraction:** Extract resume content for further processing.
-- **AI Resume Analysis:** Analyze technical skills, experience, strengths, and improvement areas using Gemini.
-- **Job Description Analysis:** Extract job requirements, skills, and qualifications.
-- **Resume–Job Matching:** Compare a resume against a job description and generate a compatibility score.
-- **Personalized Recommendations:** Identify missing skills and areas for improvement.
-- **Persistent Storage:** Store resumes, analysis results, job descriptions, and matching records in PostgreSQL.
-
-### Planned
-
-- **RAG-Based Resume Assistant:** Ask questions about uploaded resumes and job descriptions using retrieved context.
-- **AI Mock Interviews:** Conduct interactive interviews based on the candidate's resume and target role.
-- **Multi-Agent Interview Workflow:** Use specialized AI agents for planning, question generation, interviewing, evaluation, and follow-up questions.
-- **Answer Evaluation:** Evaluate answers based on correctness, relevance, completeness, clarity, and problem-solving ability.
-- **Interview Reports:** Generate detailed performance reports with scores and improvement recommendations.
-- **Analytics Dashboard:** Track interview history, performance trends, and skill development.
-
-## 🏗️ System Architecture
+## Architecture
 
 ```mermaid
-flowchart TD
-    A[Candidate] --> B[React Frontend]
-    B --> C[FastAPI Backend]
-
-    C --> D[Resume Upload & Parsing]
-    D --> E[Resume Analysis Service]
-
-    C --> F[Job Description Analysis]
-    E --> G[Resume–Job Matching]
-    F --> G
-
-    E --> H[Gemini LLM]
-    F --> H
-    G --> H
-
-    C --> I[(PostgreSQL)]
-    D --> I
-    E --> I
-    F --> I
-    G --> I
-
-    C -. Planned .-> J[RAG Pipeline]
-    J -.-> K[ChromaDB]
-    J -.-> L[Sentence Transformers]
-
-    C -. Planned .-> M[LangGraph Agent Workflow]
-    M -.-> N[AI Interviewer]
-    M -.-> O[Answer Evaluator]
-    M -.-> P[Follow-up Generator]
-
-    M -. Planned .-> Q[Interview Reports & Analytics]
+flowchart LR
+    Browser[React dashboard] -->|HTTP /api| Frontend[Nginx frontend]
+    Frontend --> Backend[FastAPI backend]
+    Backend --> Services[Services and LangGraph agents]
+    Services --> Gemini[Gemini API]
+    Backend --> PostgreSQL[(PostgreSQL)]
+    Backend --> Chroma[(Persistent ChromaDB)]
+    Backend --> Uploads[(Persistent resume files)]
+    Backend --> Migrations[Alembic migrations]
 ```
 
-## 🛠️ Technology Stack
+## Technology Stack
 
-| Category | Technologies |
-|---|---|
-| Frontend | React, Vite, Tailwind CSS |
-| Backend | Python, FastAPI |
-| Database | PostgreSQL |
-| ORM | SQLAlchemy |
-| Migrations | Alembic |
-| LLM | Google Gemini API |
-| Resume Processing | PyMuPDF, python-docx |
-| API Testing | Pytest |
-| RAG – Planned | ChromaDB, Sentence Transformers |
-| AI Orchestration – Planned | LangGraph, LangChain |
-| Containerization | Docker, Docker Compose |
+- Frontend: React 18, Vite, Axios, React Router, Tailwind CSS tooling.
+- Backend: Python 3.12, FastAPI, Pydantic Settings, Uvicorn.
+- Persistence: PostgreSQL 17, SQLAlchemy 2, Alembic.
+- AI: Google Gemini SDK, LangGraph, Sentence Transformers.
+- Retrieval: ChromaDB persistent vector store.
+- Documents: PyMuPDF and python-docx.
+- Deployment: Docker, Docker Compose, nginx.
 
-## 📂 Project Structure
+## Requirements
 
-```text
-InterviewIQ/
-│
-├── backend/
-│   ├── app/
-│   │   ├── agents/
-│   │   ├── database/
-│   │   ├── models/
-│   │   ├── rag/
-│   │   ├── routers/
-│   │   ├── schemas/
-│   │   ├── services/
-│   │   ├── config.py
-│   │   └── main.py
-│   │
-│   ├── alembic/
-│   ├── tests/
-│   ├── uploads/
-│   ├── requirements.txt
-│   └── .env
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── App.jsx
-│   │
-│   ├── package.json
-│   └── vite.config.js
-│
-├── docker-compose.yml
-├── .gitignore
-└── README.md
+For local development: Python 3.12+, Node.js 22+, npm, and PostgreSQL 15+ or Docker Desktop. Gemini analysis, matching, RAG answers, and interview generation require a valid `GEMINI_API_KEY`. Upload and database tests use mocked or local components and do not require live Gemini access.
+
+## Environment Configuration
+
+Copy `backend/.env.example` to `backend/.env` for local backend development. For Compose, create a root `.env` file from the following minimum values:
+
+```dotenv
+POSTGRES_PASSWORD=replace-with-a-long-random-password
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.8-flash
 ```
 
-*Note: The structure above represents the intended application organization. Update it if your actual repository uses different folder names.*
+Important variables:
 
-## ⚙️ Getting Started
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | local PostgreSQL URL | SQLAlchemy connection string |
+| `POSTGRES_PASSWORD` | required by Compose | PostgreSQL password; never commit it |
+| `CORS_ORIGINS` | `['http://localhost:5173']` | JSON list of trusted browser origins |
+| `UPLOAD_DIR` | `uploads` | Resume storage directory |
+| `MAX_UPLOAD_SIZE_BYTES` | `10485760` | Maximum upload size, 10 MiB |
+| `GEMINI_API_KEY` | empty | Server-side provider credential |
+| `GEMINI_MODEL` | `gemini-3.8-flash` | Gemini model name |
+| `GEMINI_TIMEOUT_SECONDS` | `60` | Provider request timeout |
+| `AI_RATE_LIMIT_PER_MINUTE` | `30` | Per-client in-process limit for expensive POST endpoints |
+| `RAG_CHROMA_DIR` | `chroma_data` | Persistent ChromaDB directory |
+| `RAG_EMBEDDING_MODEL` | `all-MiniLM-L6-v2` | Sentence Transformer model |
+| `RAG_TOP_K` | `5` | Retrieval result count |
+| `DATABASE_POOL_SIZE` | `5` | SQLAlchemy pool size |
+| `DATABASE_MAX_OVERFLOW` | `10` | SQLAlchemy overflow connections |
 
-### Prerequisites
+No API key is sent to the frontend. The frontend calls the backend, which owns provider credentials.
 
-Make sure you have installed:
+## Docker Startup
 
-- Python 3.12
-- Node.js and npm
-- PostgreSQL (or Docker Desktop)
-- Git
-- Google Gemini API key
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/praveen0815/InterviewIQ.git
-
-cd InterviewIQ
-```
-
-### 2. Backend Setup
-
-Open a terminal and navigate to the backend directory.
-
-```bash
-cd backend
-```
-
-Create a virtual environment:
-
-```bash
-py -3.12 -m venv .venv
-```
-
-Activate it:
+From the repository root:
 
 ```powershell
-.venv\Scripts\Activate.ps1
+Copy-Item .env.example .env
+# Edit .env and set POSTGRES_PASSWORD. Set GEMINI_API_KEY for live AI features.
+docker compose up --build -d
+docker compose ps
 ```
 
-Install dependencies:
+Open `http://localhost:5173`. The backend Swagger UI is at `http://localhost:8000/docs`; the API health endpoint is `http://localhost:8000/health`.
 
-```bash
-pip install -r requirements.txt
-```
+The Compose stack waits for PostgreSQL health before starting the backend. The backend applies `alembic upgrade head` before Uvicorn starts. Named volumes preserve PostgreSQL data, ChromaDB data, and uploaded files.
 
-### 3. Environment Configuration
+Stop the stack with `docker compose down`. Do not add `-v` unless you intend to delete persistent data.
 
-Create a `.env` file in the backend directory.
-
-Replace the placeholder values with your local configuration.
-
-**Important:** Never commit your `.env` file or expose your Gemini API key in frontend code.
-
-### 4. Database Migration
-
-Run the database migrations:
-
-```bash
-alembic upgrade head
-```
-
-### 5. Start the Backend
-
-```bash
-uvicorn app.main:app --reload
-```
+## Local Startup
 
 Backend:
 
-`http://localhost:8000`
-
-API Documentation:
-
-`http://localhost:8000/docs`
-
-Health Check:
-
-`http://localhost:8000/health`
-
-### 6. Frontend Setup
-
-Open another terminal:
-
-```bash
-cd frontend
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Start the development server:
-
-```bash
-npm run dev
+```powershell
+cd backend
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env
+alembic upgrade head
+python -m uvicorn app.main:app --reload --port 8000
 ```
 
 Frontend:
 
-`http://localhost:5173`
+```powershell
+cd frontend
+npm install
+npm run dev
+```
 
-## 🔗 API Endpoints
+## Database Migrations
 
-### Resume Management
+```powershell
+cd backend
+alembic upgrade head
+alembic current
+alembic downgrade -1
+```
 
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/v1/resumes/upload` | Upload a resume |
-| GET | `/api/v1/resumes/{resume_id}` | Retrieve resume details |
-| POST | `/api/v1/resumes/{resume_id}/analyze` | Analyze an uploaded resume |
+The schema includes resumes, resume analyses, job descriptions, job matches, interview sessions, interview questions, candidate answers, answer evaluations, and persisted interview reports. Resume files and vectors are filesystem-backed and are not stored in PostgreSQL.
 
-### Job Description & Matching
+## API Endpoints
 
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/v1/jobs/analyze` | Analyze a job description |
-| POST | `/api/v1/jobs/{job_id}/match/{resume_id}` | Match resume with a job |
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Service and database health |
+| `POST` | `/api/v1/resumes/upload` | Upload and extract a PDF/DOCX resume |
+| `GET` | `/api/v1/resumes/{resume_id}` | Retrieve resume metadata and extracted text |
+| `POST` | `/api/v1/resumes/{resume_id}/analyze` | Analyze a stored resume with Gemini |
+| `POST` | `/api/v1/jobs/analyze` | Analyze a job description |
+| `GET` | `/api/v1/jobs/{job_id}` | Retrieve a job analysis |
+| `POST` | `/api/v1/jobs/{job_id}/match/{resume_id}` | Match resume evidence to a job |
+| `POST` | `/api/v1/rag/index/resume/{resume_id}` | Index a resume when its content changed |
+| `POST` | `/api/v1/rag/index/job/{job_id}` | Index a job description |
+| `POST` | `/api/v1/rag/reindex/resume/{resume_id}` | Force resume re-indexing |
+| `POST` | `/api/v1/rag/query` | Ask a grounded question |
+| `POST` | `/api/v1/interviews/start` | Start a persistent mock interview |
+| `GET` | `/api/v1/interviews/{interview_id}` | Retrieve interview state |
+| `POST` | `/api/v1/interviews/{interview_id}/answer` | Submit and evaluate an answer |
+| `POST` | `/api/v1/interviews/{interview_id}/next-question` | Retrieve the current question |
+| `POST` | `/api/v1/interviews/{interview_id}/complete` | Complete an interview and generate its summary |
+| `GET` | `/api/v1/reports/{report_id}` | Retrieve a persisted completed-interview report |
+| `GET` | `/api/v1/interviews/{interview_id}/report` | Retrieve the report for a completed interview |
+| `GET` | `/api/v1/reports` | List reports with pagination and optional resume filter |
+| `GET` | `/api/v1/dashboard/summary` | Retrieve verified progress metrics and trends |
+| `GET` | `/api/v1/reports/{report_id}/pdf` | Download a generated report PDF |
 
-### Health
+Example upload:
 
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/health` | Check backend health |
+```powershell
+curl.exe -F "file=@resume.pdf" http://localhost:8000/api/v1/resumes/upload
+```
 
-### Planned API Capabilities
+Example job analysis:
 
-The following APIs are part of the future development roadmap:
+```powershell
+curl.exe -X POST http://localhost:8000/api/v1/jobs/analyze `
+  -H "Content-Type: application/json" `
+  -d '{"description":"Backend engineer with Python, FastAPI, and PostgreSQL experience."}'
+```
 
-- RAG-based resume and job knowledge queries.
-- Interview session creation and management.
-- Candidate answer submission and evaluation.
-- Interview completion and report generation.
-- Dashboard analytics.
+A successful upload returns an object containing `id`, `original_filename`, `file_type`, `extracted_text`, and timestamps. It never returns the stored filesystem path. A job analysis returns `id`, `description`, `job_title`, `summary`, skills, responsibilities, and timestamps.
 
-## 🧠 AI Workflow
-
-The planned end-to-end InterviewIQ workflow:
-
-1. Candidate uploads a resume.
-2. The system extracts resume content.
-3. Gemini analyzes skills, experience, and qualifications.
-4. Candidate submits a target job description.
-5. The system analyzes job requirements.
-6. Resume and job requirements are compared.
-7. RAG retrieves relevant resume and job information.
-8. AI agents generate personalized interview questions.
-9. The candidate participates in a mock interview.
-10. AI evaluates answers and generates feedback.
-11. The platform creates an interview performance report.
-
-## 🧪 Testing
+## Testing
 
 Backend tests:
 
-```bash
-pytest -v
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
+python -m pytest -q
 ```
 
 Frontend production build:
 
-```bash
+```powershell
+cd frontend
 npm run build
 ```
 
-AI integration tests should distinguish mocked LLM responses from real Gemini API requests.
+The test suite covers health, database migrations, resume upload and extraction, mocked AI analysis and matching, RAG behavior, and interview workflows. Live Gemini calls are not part of the automated suite and require explicit provider credentials. Browser component tests and live Docker smoke tests are not currently present.
 
-## 🔐 Security Considerations
+## Security and Reliability Notes
 
-- Keep API keys and database credentials in environment variables.
-- Validate uploaded file types and sizes.
-- Use safe, generated filenames for uploaded resumes.
-- Avoid exposing internal server errors or sensitive file paths.
-- Restrict CORS to trusted frontend origins in production.
-- Never expose LLM credentials to the browser.
-- Add authentication and authorization before handling real candidate accounts and private resumes.
+- Uploads use generated UUID filenames and are stored outside the public frontend tree.
+- Uploads are limited to 10 MiB by default and checked against PDF/DOCX signatures.
+- Pydantic validates request lengths and positive identifiers.
+- SQLAlchemy parameterizes database access; no raw user SQL is used.
+- Provider errors return sanitized API messages rather than stack traces.
+- CORS is restricted to configured origins and credentials are disabled until authentication exists.
+- Expensive POST routes have a per-client in-process rate limit. It is not a distributed limiter and should be replaced with Redis or an API gateway for multiple replicas.
+- Gemini timeout and SQLAlchemy connection pooling are configurable.
+- RAG indexing uses content hashes and persistent storage.
+- Authentication, authorization, user ownership, encrypted file storage, malware scanning, distributed rate limiting, and audit logging remain deployment requirements for a public multi-user release.
 
-## 🎯 Project Objectives
+## Audit Summary
 
-- Build a practical AI-powered interview preparation platform.
-- Apply Generative AI to resume and job description understanding.
-- Implement RAG for context-aware responses.
-- Develop multi-agent workflows using LangGraph.
-- Build reliable backend APIs using FastAPI.
-- Integrate AI capabilities with a modern React frontend.
-- Generate actionable interview feedback and performance insights.
+Completed: Phases 1-5 core foundation, resume persistence and extraction, Gemini analysis/matching, persistent RAG indexing/querying, LangGraph interview workflow, API validation, database migrations, focused backend tests, frontend build, and Docker Compose configuration.
 
-## 👨‍💻 Developer
+Incomplete or unverified: authentication and authorization are absent; no live Gemini tests were run; Docker service startup was not run in this environment; browser E2E tests are absent. Report scores and skill metrics are derived only from stored evaluations; no fake dashboard values are generated.
 
-**Praveenkumar R.**
----
+Known risks: the in-memory rate limiter resets on process restart and is per worker; Chroma and uploaded files require reliable volume backups; multi-user ownership cannot be enforced without authentication; AI output quality depends on provider availability and model behavior.
+
+## Troubleshooting
+
+- If Compose refuses to interpolate variables, create a root `.env` and set `POSTGRES_PASSWORD`.
+- If the backend cannot connect locally, verify `DATABASE_URL`, PostgreSQL availability, and that migrations were applied.
+- If AI endpoints return `503`, set `GEMINI_API_KEY` in the backend environment and verify the configured model.
+- If RAG startup is slow, the embedding model may be downloading on first use.
+- If a stale Docker database is causing migration issues, inspect `docker compose logs postgres backend`; deleting the named volume destroys data.
+
+## GitHub Readiness
+
+Secrets, virtual environments, caches, frontend dependencies, and build output are ignored. Review `git diff --check` and run the test/build commands before committing. Suggested commits are: `harden uploads and API limits`, `add production compose deployment`, and `document Phase 7 validation`. Do not commit `.env`, uploaded files, Chroma data, or database volumes.
